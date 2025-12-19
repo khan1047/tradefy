@@ -17,3 +17,11 @@ build/
 
 # Docker
 *.log
+# Large binaries / installers
+*.deb
+*.AppImage
+*.exe
+
+# Desktop apps / nativefier
+ChatGPT/
+APP-linux-x64/
