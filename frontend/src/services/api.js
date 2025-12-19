@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: "https://tradefy-backend.onrender.com",
+const api = axios.create({
+  baseURL: "http://localhost:5001",
 });
 
 // Attach token automatically
