@@ -4,6 +4,7 @@ import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import PostAd from "./pages/PostAd.jsx";
 import AdDetails from "./pages/AdDetails.jsx";
+import Chat from "./pages/Chat.jsx";
 
 export default function App() {
   return (
@@ -13,6 +14,8 @@ export default function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/post-ad" element={<PostAd />} />
       <Route path="/ad/:id" element={<AdDetails />} />
+      <Route path="/chat/:adId" element={<Chat />} />
+   
     </Routes>
   );
 }
