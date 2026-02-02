@@ -1,0 +1,16 @@
+from fastapi import FastAPI
+from database.db import Base, engine
+from routers.auth_router import router as auth_router
+
+# Create database tables
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+@app.get("/")
+def home():
+    return {"message": "TradeFy Backend Running with Auth"}
+
+app.include_router(auth_router)
+from routers.image_router import router as image_router
+app.include_router(image_router)

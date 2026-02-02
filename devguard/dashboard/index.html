@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DevGuard Dashboard</title>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      padding: 30px;
+    }
+
+    h1, h2 {
+      margin-top: 0;
+    }
+
+    .card {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DevGuard Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(180deg, #0b1020, #111827);
+      color: #e5e7eb;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card {
+      background: #020617;
+      border: 1px solid #1f2933;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    input[type="password"] {
+      width: 70%;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+    }
+    button {
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+    .ok { color: #22c55e; }
+    .err { color: #ef4444; }
+    pre {
+      background: #020617;
+      padding: 10px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    .bar {
+      height: 10px;
+      background: #1f2937;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: #22c55e;
+    }
+    svg {
+      width: 100%;
+      height: 200px;
+      background: #020617;
+      border-radius: 8px;
+    }
+    .severity label {
+      margin-right: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 DevGuard Dashboard</h1>
+    <p>Local · Owner-locked · Human-in-the-loop</p>
+
+    <div class="card">
+      <h2>🔐 Owner Authentication</h2>
+      <input id="keyInput" type="password" placeholder="Owner key" />
+      <button onclick="unlock()">Unlock</button>
+      <div id="authMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Status</h2>
+      <pre id="statusBox">Locked</pre>
+      <div>Memory Usage</div>
+      <div class="bar"><div id="memBar" class="bar-fill" style="width:0%"></div></div>
+      <div id="memLabel"></div>
+    </div>
+
+    <div class="card">
+      <h2>📈 Trend Over Time</h2>
+      <svg id="trendChart"></svg>
+    </div>
+
+    <div class="card severity">
+      <h2>🎚 Severity Filters</h2>
+      <label><input type="checkbox" checked /> LOW</label>
+      <label><input type="checkbox" checked /> MEDIUM</label>
+      <label><input type="checkbox" checked /> HIGH</label>
+    </div>
+
+    <div class="card">
+      <h2>🛠 Fix Proposals</h2>
+      <ul id="fixList"><li>No fix proposals available</li></ul>
+    </div>
+  </div>
+
+<script>
+let OWNER_KEY = null;
+const API = "http://127.0.0.1:8123";
+
+async function apiGet(path) {
+  const res = await fetch(API + path, {
+    headers: { "Authorization": "Bearer " + OWNER_KEY }
+  });
+  if (!res.ok) throw new Error("Access denied");
+  return res.json();
+}
+
+async function unlock() {
+  OWNER_KEY = document.getElementById("keyInput").value;
+  try {
+    await loadAll();
+    document.getElementById("authMsg").innerHTML =
+      "<span class='ok'>✔ Access granted</span>";
+  } catch {
+    document.getElementById("authMsg").innerHTML =
+      "<span class='err'>✖ Access denied</span>";
+  }
+}
+
+async function loadAll() {
+  const status = await apiGet("/status");
+  document.getElementById("statusBox").textContent =
+    JSON.stringify(status, null, 2);
+
+  const count = status.memory_count || 0;
+  document.getElementById("memBar").style.width =
+    Math.min(100, count * 20) + "%";
+  document.getElementById("memLabel").textContent =
+    count + " issues remembered";
+
+  const trend = await apiGet("/trend");
+  renderTrend(trend);
+
+  const fixes = await apiGet("/fixes");
+  renderFixes(fixes);
+}
+
+function renderTrend(trend) {
+  const svg = document.getElementById("trendChart");
+  svg.innerHTML = "";
+  if (!trend || trend.length < 2) return;
+
+  const values = trend.map(t => t.counts.HIGH);
+  const w = svg.clientWidth;
+  const h = svg.clientHeight;
+
+  const sx = i => (i / (values.length - 1)) * (w - 20) + 10;
+  const sy = v => h - (v / Math.max(...values, 1)) * (h - 20) - 10;
+
+  const d = values.map((v,i)=>
+    `${i===0?"M":"L"} ${sx(i)} ${sy(v)}`
+  ).join(" ");
+
+  const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+  path.setAttribute("d", d);
+  path.setAttribute("stroke", "#f87171");
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke-width", "2");
+  svg.appendChild(path);
+}
+
+function renderFixes(fixes) {
+  const ul = document.getElementById("fixList");
+  ul.innerHTML = "";
+  if (!fixes || fixes.length === 0) {
+    ul.innerHTML = "<li>No fix proposals available</li>";
+    return;
+  }
+  fixes.forEach(f => {
+    const li = document.createElement("li");
+    li.innerHTML = `<b>[${f.severity}]</b> ${f.title}<pre>${f.patch}</pre>`;
+    ul.appendChild(li);
+  });
+}
+</script>
+</body>
+</html>

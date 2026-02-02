@@ -1,0 +1,29 @@
+AI_CACHE_*
+.devguard_*.json
+reports/
+__pycache__/
+*.pyc
+node_modules/
+
+# Python venv
+venv/
+.venv/
+backend/venv*/
+backend/.python-version
+
+# Env files
+.env
+env/
+backend/.env
+frontend/.env*
+
+# Uploads / local data
+backend/uploads/
+backend/*.db
+*.sqlite
+
+# OS files
+.DS_Store
+
+# Logs
+*.log

@@ -1,0 +1,13 @@
+{
+  "name": "tradefy-backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.0.0",
+    "cors": "^2.8.5"
+  }
+}

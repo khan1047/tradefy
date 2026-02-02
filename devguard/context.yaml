@@ -1,0 +1,7 @@
+websocket:
+  auth: jwt_query_param
+  param_name: conversation_id
+
+frontend:
+  token_storage: localStorage.access_token
+  route_param: conversation_id
