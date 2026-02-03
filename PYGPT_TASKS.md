@@ -1,20 +1,22 @@
-## MVP EXECUTION TASK — ADS FEED
+## MVP EXECUTION TASK — ADS FEED PHASE 2
 
-Implement immediately:
+Implement now:
 
 BACKEND:
-- Create Ads model (Mongo)
-- CRUD routes /api/ads
-- Pagination + filters
-- Seed demo ads
+- Ensure ads routes unified (use /routes/ads.js)
+- Pagination + category filter
+- Seed script seedAds.js
+- Swagger doc for ads endpoints
 
 FRONTEND:
-- AdsFeed page
-- API fetch hook
-- AdCard grid
-- Skeleton loaders
-- Search box
+- Create AdsFeed.jsx page
+- Add AdCard component
+- Wire React router route /ads
+- Search bar + category dropdown
+- Pagination UI
 
-WIRE:
-- nginx path ok
-- docker-compose build passes
+TEST:
+- curl examples
+- basic jest test for ads endpoint
+
+Do not modify builder scripts. Generate app code only.
