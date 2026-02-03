@@ -1,23 +1,20 @@
-# PyGPT Tasks — MVP Build Phase 1
+## MVP EXECUTION TASK — ADS FEED
 
-You are running in PR mode.
+Implement immediately:
 
-Mission:
+BACKEND:
+- Create Ads model (Mongo)
+- CRUD routes /api/ads
+- Pagination + filters
+- Seed demo ads
 
-1) Backend:
-   - Add GET /api/ads endpoint returning paginated ads.
-   - Ensure Mongo query sorted by newest.
-   - Add basic validation.
-   - Update routers/controllers cleanly.
+FRONTEND:
+- AdsFeed page
+- API fetch hook
+- AdCard grid
+- Skeleton loaders
+- Search box
 
-2) Frontend:
-   - Create AdsFeed page.
-   - Fetch from /api/ads.
-   - Display cards grid.
-   - Loading + empty states.
-
-3) Add minimal tests if easy.
-
-4) Do not break Docker build.
-
-5) All changes must be committed so a Pull Request is created.
+WIRE:
+- nginx path ok
+- docker-compose build passes
