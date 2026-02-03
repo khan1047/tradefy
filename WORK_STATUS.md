@@ -24,3 +24,7 @@
 
 ## Next Steps
 -
+
+[2026-02-03] PyGPT Automation Activated:
+- GitHub Actions PR-mode workflow active.
+- Automated runs now propose changes via Pull Requests.
