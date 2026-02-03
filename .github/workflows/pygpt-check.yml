@@ -1,4 +1,4 @@
-name: PyGPT CTO Check (Dry Run)
+name: PyGPT CTO Check (PR Mode)
 
 on:
   workflow_dispatch:
@@ -9,6 +9,10 @@ on:
 jobs:
   pygpt-check:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -23,8 +27,6 @@ jobs:
         run: |
           if [ -f pygpt/requirements.txt ]; then
             pip install -r pygpt/requirements.txt
-          else
-            echo "No pygpt/requirements.txt found — skipping install"
           fi
 
       - name: Run PyGPT CTO Spec
@@ -34,13 +36,26 @@ jobs:
           if [ -f run_pygpt_cto.sh ]; then
             chmod +x run_pygpt_cto.sh
             ./run_pygpt_cto.sh || true
-          else
-            echo "run_pygpt_cto.sh not found — skipping PyGPT run"
           fi
 
       - name: Docker build validation
         run: |
           docker compose build
+
+      - name: Create PR if changes exist
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: pygpt/auto-update
+          delete-branch: true
+          title: "chore(cto): PyGPT automated improvements"
+          commit-message: "chore(cto): PyGPT automated improvements"
+          body: |
+            🤖 PyGPT ran in CTO mode and proposed changes.
+
+            Please review:
+            - Code changes
+            - Docker build status
+            - Reports in artifacts
 
       - name: Upload reports (if present)
         uses: actions/upload-artifact@v4
