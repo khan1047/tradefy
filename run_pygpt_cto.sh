@@ -3,19 +3,29 @@ set -e
 
 echo "🤖 PyGPT CTO Mode — Task Aware Runner"
 
+# Ensure we are at repo root
+ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT_DIR"
+
 if [ ! -f PYGPT_TASKS.md ]; then
   echo "❌ No PYGPT_TASKS.md found — exiting."
   exit 0
 fi
 
 TASKS=$(cat PYGPT_TASKS.md)
-
 DATE=$(date +"%Y-%m-%d")
 
+# -------------------------------------------------------
+# INITIAL PR MODE (META / BOOTSTRAP)
+# -------------------------------------------------------
 if echo "$TASKS" | grep -q "Initial PR Mode"; then
   echo "📋 Running initial PR-mode tasks..."
 
-  if ! grep -q "Automated PyGPT Run – Initial PR Mode" CHANGELOG.md 2>/dev/null; then
+  if [ ! -f CHANGELOG.md ]; then
+    echo "# Changelog" > CHANGELOG.md
+  fi
+
+  if ! grep -q "Automated PyGPT Run – Initial PR Mode" CHANGELOG.md; then
     cat >> CHANGELOG.md <<EOF
 
 ## [$DATE] Automated PyGPT Run – Initial PR Mode
@@ -26,7 +36,7 @@ if echo "$TASKS" | grep -q "Initial PR Mode"; then
 EOF
   fi
 
-  if ! grep -q "PyGPT Automation Activated" WORK_STATUS.md; then
+  if ! grep -q "PyGPT Automation Activated" WORK_STATUS.md 2>/dev/null; then
     cat >> WORK_STATUS.md <<EOF
 
 [$DATE] PyGPT Automation Activated:
@@ -35,15 +45,25 @@ EOF
 EOF
   fi
 
+# -------------------------------------------------------
+# MVP BUILD MODE (REAL PRODUCT WORK)
+# -------------------------------------------------------
 elif echo "$TASKS" | grep -q "MVP Build Phase"; then
   echo "🚀 MVP build tasks detected."
 
-  echo "MVP tasks detected on $DATE" > PYGPT_MVP_PENDING.txt
+  if [ ! -f ./pygpt_mvp_builder.sh ]; then
+    echo "❌ pygpt_mvp_builder.sh not found — aborting MVP build."
+    exit 1
+  fi
 
-  echo "TODO:" >> PYGPT_MVP_PENDING.txt
-  echo "- Implement Ads API" >> PYGPT_MVP_PENDING.txt
-  echo "- Implement Ads feed UI" >> PYGPT_MVP_PENDING.txt
+  chmod +x ./pygpt_mvp_builder.sh
+  ./pygpt_mvp_builder.sh
 
+# -------------------------------------------------------
+# FALLBACK
+# -------------------------------------------------------
 else
   echo "⚠️ No recognized task type found in PYGPT_TASKS.md"
 fi
+
+echo "✅ PyGPT CTO run completed."
