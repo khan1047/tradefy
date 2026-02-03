@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
+TASKS=$(cat PYGPT_TASKS.md || true)
+
+PHASE2=false
+if echo "$TASKS" | grep -qi "PHASE 2"; then
+  PHASE2=true
+fi
+
+
 echo "🚀 PyGPT MVP Builder: Ads Feed Phase 1"
 
 DATE=$(date +"%Y-%m-%d")
@@ -122,3 +130,55 @@ app.use("/api/ads", adsRoutes);' "$SERVER_FILE"
 fi
 
 echo "🧠 Ads model + route registration applied."
+
+if [ "$PHASE2" = true ]; then
+  echo "🚀 Running Phase 2 frontend + seed tasks"
+
+  mkdir -p frontend/src/pages frontend/src/components
+
+  FEED_PAGE="frontend/src/pages/AdsFeed.jsx"
+  CARD_COMP="frontend/src/components/AdCard.jsx"
+
+  cat > "$CARD_COMP" <<'EOF'
+export default function AdCard({ ad }) {
+  return (
+    <div className="border p-4 rounded">
+      <h3 className="font-bold">{ad.title}</h3>
+      <p>{ad.price}</p>
+    </div>
+  );
+}
+EOF
+
+  cat > "$FEED_PAGE" <<'EOF'
+import { useEffect, useState } from "react";
+import AdCard from "../components/AdCard";
+
+export default function AdsFeed() {
+  const [ads, setAds] = useState([]);
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    fetch(`/api/ads?search=${query}`)
+      .then(r => r.json())
+      .then(d => setAds(d.data || []));
+  }, [query]);
+
+  return (
+    <div>
+      <input
+        placeholder="Search ads..."
+        value={query}
+        onChange={e => setQuery(e.target.value)}
+        className="border p-2 mb-4 w-full"
+      />
+      <div className="grid grid-cols-3 gap-4">
+        {ads.map(ad => <AdCard key={ad._id} ad={ad} />)}
+      </div>
+    </div>
+  );
+}
+EOF
+
+  echo "🧪 Phase-2 frontend scaffold complete."
+fi
