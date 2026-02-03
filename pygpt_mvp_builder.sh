@@ -85,3 +85,40 @@ EOF
 fi
 
 echo "✅ MVP Ads feed scaffolding generated."
+
+# --- MODEL ---
+
+ADS_MODEL="backend/models/Ad.js"
+
+if [ ! -f "$ADS_MODEL" ]; then
+cat > "$ADS_MODEL" <<'EOF'
+import mongoose from "mongoose";
+
+const AdSchema = new mongoose.Schema(
+  {
+    title: String,
+    price: Number,
+    description: String,
+    category: String,
+    images: [String],
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model("Ad", AdSchema);
+EOF
+fi
+
+# --- REGISTER ROUTE ---
+
+SERVER_FILE="backend/server.js"
+
+if ! grep -q "adsRoutes" "$SERVER_FILE"; then
+  sed -i '/express()/a \
+import adsRoutes from "./routes/ads.js";' "$SERVER_FILE"
+
+  sed -i '/app.use(/a \
+app.use("/api/ads", adsRoutes);' "$SERVER_FILE"
+fi
+
+echo "🧠 Ads model + route registration applied."
