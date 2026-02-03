@@ -1,0 +1,52 @@
+name: PyGPT CTO Check (Dry Run)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  pygpt-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyGPT dependencies (optional)
+        run: |
+          if [ -f pygpt/requirements.txt ]; then
+            pip install -r pygpt/requirements.txt
+          else
+            echo "No pygpt/requirements.txt found — skipping install"
+          fi
+
+      - name: Run PyGPT CTO Spec
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -f run_pygpt_cto.sh ]; then
+            chmod +x run_pygpt_cto.sh
+            ./run_pygpt_cto.sh || true
+          else
+            echo "run_pygpt_cto.sh not found — skipping PyGPT run"
+          fi
+
+      - name: Docker build validation
+        run: |
+          docker compose build
+
+      - name: Upload reports (if present)
+        uses: actions/upload-artifact@v4
+        with:
+          name: pygpt-reports
+          path: |
+            CTO_REPORT.md
+            BUILD_REPORT.md
+            SECURITY_REPORT.md
