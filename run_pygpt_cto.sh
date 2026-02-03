@@ -3,13 +3,21 @@ set -e
 
 echo "🤖 PyGPT CTO Mode — Task Aware Runner"
 
-# Ensure we are at repo root
-ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# FORCE repo root
+ROOT_DIR="$(pwd)"
 cd "$ROOT_DIR"
 
-if [ ! -f PYGPT_TASKS.md ]; then
-  echo "❌ No PYGPT_TASKS.md found — exiting."
-  exit 0
+echo "📂 Running in directory:"
+pwd
+
+echo "📄 Repo root contents:"
+ls -la
+
+# Docker detection
+if [ -f docker-compose.yml ]; then
+  echo "🐳 docker-compose.yml detected."
+else
+  echo "❌ docker-compose.yml NOT found."
 fi
 
 TASKS=$(cat PYGPT_TASKS.md)
